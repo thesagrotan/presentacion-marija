@@ -88,8 +88,10 @@ function AccordionContent({
       <div
         inert={!open}
         className={cn(
-          "grid transition-[grid-template-rows,opacity] duration-[400ms] ease-in-out-strong",
-          open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+          "grid transition-[grid-template-rows,opacity] ease-in-out-strong",
+          open
+            ? "grid-rows-[1fr] opacity-100 duration-[240ms]"
+            : "grid-rows-[0fr] opacity-0 duration-[420ms]"
         )}
       >
         <div

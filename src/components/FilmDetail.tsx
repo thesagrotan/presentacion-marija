@@ -1,7 +1,8 @@
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { motion } from "motion/react";
 import type { Film } from "@/data/types";
 import { CreditsContent } from "./Credits";
 import { EASE_OUT } from "@/lib/ease";
+import { cn } from "@/lib/utils";
 
 type FilmDetailProps = {
   film: Film;
@@ -14,30 +15,17 @@ export function FilmDetail({
   creditsOpen,
   onCreditsChange,
 }: FilmDetailProps) {
-  const reduced = useReducedMotion();
   const hasCredits = Boolean(
     film.credits.left.trim() || film.credits.right.trim(),
   );
 
   return (
     <motion.figure
-      className="relative m-0 w-full origin-left max-md:origin-center"
-      initial={{ opacity: 0, transform: reduced ? "scale(1)" : "scale(1.02)" }}
-      animate={{ opacity: 1, transform: "scale(1)" }}
-      exit={
-        reduced
-          ? { opacity: 0, transition: { duration: 0.1 } }
-          : {
-              opacity: 0,
-              transform: "scale(0.98)",
-              transition: { duration: 0.24, ease: EASE_OUT },
-            }
-      }
-      transition={
-        reduced
-          ? { duration: 0.15 }
-          : { type: "spring", bounce: 0, duration: 0.4 }
-      }
+      className="relative m-0 w-full"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0, transition: { duration: 0.42, ease: EASE_OUT } }}
+      transition={{ duration: 0.35, ease: EASE_OUT }}
     >
       <img
         className="aspect-[256/135] w-full bg-black/5 object-cover object-center max-md:aspect-video"
@@ -52,31 +40,24 @@ export function FilmDetail({
               onToggle={() => onCreditsChange(!creditsOpen)}
             />
           </div>
-          <AnimatePresence initial={false}>
-            {creditsOpen ? (
-              <motion.div
-                key="credits"
-                id="film-credits"
-                role="region"
-                aria-label="Film credits"
-                className="overflow-hidden"
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{
-                  duration: reduced ? 0.01 : 0.32,
-                  ease: EASE_OUT,
-                }}
-              >
-                <div className="pt-4">
-                  <CreditsContent
-                    film={film}
-                    className="ml-auto w-[min(720px,100%)]"
-                  />
-                </div>
-              </motion.div>
-            ) : null}
-          </AnimatePresence>
+          <div
+            id="film-credits"
+            role="region"
+            aria-label="Film credits"
+            className={cn(
+              "grid transition-[grid-template-rows,opacity] duration-[240ms] ease-in-out-strong",
+              creditsOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0",
+            )}
+          >
+            <div className="min-h-0 overflow-hidden">
+              <div className="pt-4">
+                <CreditsContent
+                  film={film}
+                  className="ml-auto w-[min(720px,100%)]"
+                />
+              </div>
+            </div>
+          </div>
         </div>
       ) : null}
     </motion.figure>

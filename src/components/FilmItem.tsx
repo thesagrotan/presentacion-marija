@@ -24,8 +24,10 @@ function FilmItemBody({ film }: { film: Film }) {
       <div
         aria-hidden="true"
         className={cn(
-          "grid transition-[grid-template-rows] duration-[400ms] ease-in-out-strong",
-          open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+          "grid transition-[grid-template-rows] ease-in-out-strong",
+          open
+            ? "grid-rows-[1fr] duration-[240ms]"
+            : "grid-rows-[0fr] duration-[420ms]"
         )}
       >
         <div className="min-h-0 overflow-hidden">

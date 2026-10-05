@@ -15,7 +15,7 @@ export function ReadMorePanel({ open }: ReadMorePanelProps) {
     <AnimatePresence>
       {open && (
         <motion.section
-          className="fixed top-[calc(var(--pad)+48px)] bottom-[var(--pad)] left-[var(--pad)] z-30 w-[min(549px,calc(100vw-var(--pad)*2))] origin-top-left bg-film-bg text-bio transition-colors duration-300 ease-out-strong shadow-[0_8px_30px_rgba(0,0,0,0.08)] max-md:top-[calc(var(--pad)+64px)] max-md:w-[calc(100vw-var(--pad)*2)]"
+          className="fixed top-[var(--readmore-top,calc(var(--pad)+48px))] bottom-[var(--pad)] left-[var(--pad)] z-30 w-[min(549px,calc(100vw-var(--pad)*2))] origin-top-left bg-film-bg text-bio transition-colors duration-300 ease-out-strong shadow-[0_8px_30px_rgba(0,0,0,0.08)] max-md:w-[calc(100vw-var(--pad)*2)]"
           id="read-more-panel"
           aria-label="About and filmography"
           initial={reduced ? { opacity: 0 } : { opacity: 0, transform: "scale(0.98)" }}

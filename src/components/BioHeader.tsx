@@ -8,7 +8,7 @@ type BioHeaderProps = {
 
 export function BioHeader({ expanded, onToggle }: BioHeaderProps) {
   return (
-    <div className="absolute top-[var(--pad)] left-[var(--pad)] z-10 w-[min(497px,calc(100vw-var(--pad)*2))] text-sm leading-4 text-ink max-md:static max-md:w-full">
+    <div className="w-full text-sm leading-4 text-ink">
       <span className="uppercase tracking-[0.01em]">Marija Arakelyan Lučić</span>
       {" is a filmmaker based in Berlin. "}
       <Button
