@@ -9,7 +9,7 @@ type BioHeaderProps = {
 export function BioHeader({ expanded, onToggle }: BioHeaderProps) {
   return (
     <div className="absolute top-[var(--pad)] left-[var(--pad)] z-10 w-[min(497px,calc(100vw-var(--pad)*2))] text-sm leading-4 text-ink max-md:static max-md:w-full">
-      <span className="uppercase">Marija Arakelyan Lučić</span>
+      <span className="uppercase tracking-[0.01em]">Marija Arakelyan Lučić</span>
       {" is a filmmaker based in Berlin. "}
       <Button
         type="button"
@@ -23,8 +23,8 @@ export function BioHeader({ expanded, onToggle }: BioHeaderProps) {
           <span
             aria-hidden={expanded}
             className={cn(
-              "col-start-1 row-start-1 transition-opacity duration-150",
-              expanded ? "opacity-0" : "opacity-100",
+              "col-start-1 row-start-1 transition-[opacity,filter] duration-150 ease-out",
+              expanded ? "opacity-0 blur-[2px]" : "opacity-100 blur-0",
             )}
           >
             read more
@@ -32,8 +32,8 @@ export function BioHeader({ expanded, onToggle }: BioHeaderProps) {
           <span
             aria-hidden={!expanded}
             className={cn(
-              "col-start-1 row-start-1 transition-opacity duration-150",
-              expanded ? "opacity-100" : "opacity-0",
+              "col-start-1 row-start-1 transition-[opacity,filter] duration-150 ease-out",
+              expanded ? "opacity-100 blur-0" : "opacity-0 blur-[2px]",
             )}
           >
             close

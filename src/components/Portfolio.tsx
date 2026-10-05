@@ -7,14 +7,21 @@ import { BioHeader } from "@/components/BioHeader";
 import { FilmDetail } from "@/components/FilmDetail";
 import { ReadMorePanel } from "@/components/ReadMorePanel";
 import { cn } from "@/lib/utils";
+import { EASE_OUT } from "@/lib/ease";
 
 const HOME_BG = "#FFFFFF";
 const FILM_TEXT = "#12140B";
 
 export function Portfolio() {
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [creditsOpen, setCreditsOpen] = useState(false);
   const [readMore, setReadMore] = useState(false);
   const reduced = useReducedMotion();
+
+  const handleFilmChange = (id: string | null) => {
+    setActiveId(id);
+    setCreditsOpen(false);
+  };
 
   const activeFilm = useMemo(
     () => allFilms.find((film) => film.id === activeId) ?? null,
@@ -34,7 +41,7 @@ export function Portfolio() {
       className="relative min-h-dvh overflow-x-hidden text-ink max-md:flex max-md:flex-col max-md:p-[var(--pad)]"
       initial={false}
       animate={{ backgroundColor: bg }}
-      transition={{ duration: reduced ? 0.01 : 0.5, ease: [0.4, 0, 0.2, 1] }}
+      transition={{ duration: reduced ? 0.01 : 0.3, ease: EASE_OUT }}
       style={themeVars}
       data-readmore={readMore}
     >
@@ -46,16 +53,23 @@ export function Portfolio() {
         <Accordion
           films={allFilms}
           activeId={activeId}
-          onValueChange={setActiveId}
+          onValueChange={handleFilmChange}
         />
         <div
           className={cn(
-            "flex min-w-0 flex-1 items-center max-md:block max-md:flex-none",
+            "grid min-w-0 flex-1 grid-cols-1 grid-rows-1 items-center [&>*]:col-start-1 [&>*]:row-start-1 max-md:block max-md:flex-none",
             readMore && "invisible",
           )}
         >
-          <AnimatePresence mode="wait">
-            {activeFilm && <FilmDetail key={activeFilm.id} film={activeFilm} />}
+          <AnimatePresence>
+            {activeFilm && (
+              <FilmDetail
+                key={activeFilm.id}
+                film={activeFilm}
+                creditsOpen={creditsOpen}
+                onCreditsChange={setCreditsOpen}
+              />
+            )}
           </AnimatePresence>
         </div>
       </div>

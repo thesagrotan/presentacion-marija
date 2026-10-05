@@ -18,25 +18,43 @@ export const films: Film[] = [
   {
     id: "exercise-zero",
     title: "Exercise Zero",
-    description: "",
+    description:
+      "After dreaming that he has become a donkey, a basketball coach moves away from conventional tactics and leads his team according to a new understanding of intuition and mind-body coordination.",
     still: "/stills/exercise-zero.jpg",
     theme: { bg: "#93A98F", text: "#10160D" },
-    credits: { left: "", right: "" },
+    credits: {
+      left:
+        "Director: Marija Arakelyan Lucic\nDOP: Laurin Buitmann\nSound: Marcos Quincke\nCast: Rafael Kuhn, Daniel Mora Lopez, Miyeon Hwang, Nikoloz Mamatsashvili, Siri Hammarén, Peng Liu",
+      right:
+        "With the support of  Hochschule für bildende Künste Hamburg",
+    },
   },
   {
     id: "a-sweet-habit",
     title: "A Sweet Habit",
-    description: "",
+    description:
+      "At a train station, two friends wait. One will leave, and the other one will stay. Between waiting and parting, the complexity of their friendship surfaces, revealing the pain and tenderness of bonds.",
     still: "/stills/a-sweet-habit.jpg",
     theme: { bg: "#B08C86", text: "#1A0E0C" },
-    credits: { left: "", right: "" },
+    credits: {
+      left:
+        "Director: Marija Arakelyan Lucic\nDOP: Rafael Kuhn\nSound: Angeles Lopez\nCast: Siri Hammarén, Marija Arakelyan Lucic",
+      right:
+        "With the support of  Hochschule für bildende Künste Hamburg\n\nAnnual Exhibition HFBK, Hamburg, 2025\nOne Shot 23th International Short Film Festival, Jerewan, Armenia,2025\nFILMZ Festival des deutschen Kino,Mainz,Germany, 2025",
+    },
   },
   {
     id: "the-girl-and-the-sea",
     title: "The Girl and the Sea",
-    description: "",
+    description:
+      "On a windy summer day, a man discovers a woman drifting in a restless sea and close to death. The waves grow larger, swallowing every spoken word.",
     still: "/stills/girl-and-the-sea.jpg",
     theme: { bg: "#8FA2A6", text: "#0C1417" },
-    credits: { left: "", right: "" },
+    credits: {
+      left:
+        "Director: Marija Arakelyan Lučić\nDOP: Marija Arakelyan Lučić\nSound: Alma Mimica\nSound design/mix: Jochen Jezussek\nCast: Orly Nurany, Marin Tudor",
+      right:
+        "with the support of\nHochschule für bildende Künste Hamburg\nKino Klub Split\n\nKurzfilm Festival Hamburg (section: Industry day: Filmhochschultag) - Hamburg, Germany, 2024 \nGalichnik Film Festival - Galichnik, Nord Macedonia, 2024",
+    },
   },
 ];

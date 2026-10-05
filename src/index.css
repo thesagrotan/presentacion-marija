@@ -10,7 +10,11 @@
     --font-sans: 'Geist Variable', sans-serif;
     --font-serif: Georgia, "Times New Roman", serif;
 
-    /* Per-film palette — set inline on the portfolio shell and animated. */
+    /* Strong custom easings (built-in CSS curves are too weak). */
+    --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
+    --ease-in-out-strong: cubic-bezier(0.77, 0, 0.175, 1);
+
+    /* Per-film palette — set inline on the portfolio shell. */
     --color-film: var(--film-text);
     --color-film-bg: var(--film-bg);
     --color-ink: var(--ink);
@@ -92,7 +96,7 @@
 
     /* Portfolio design tokens (see SPEC.md). */
     --pad: 24px;
-    --gap: clamp(32px, 4.5vw, 61px);
+    --gap: clamp(48px, 7vw, 104px);
     --ink: #000000;
     --bio: #121212;
     --film-bg: #ffffff;

@@ -3,29 +3,48 @@ import { cn } from "cn"
 import { Accordion as AccordionPrimitive } from "radix-ui"
 import { ChevronDownIcon, ChevronUpIcon } from "lucide-react"
 
+type AccordionValue = string | string[] | undefined
+
+const AccordionValueContext = React.createContext<AccordionValue>(undefined)
+const AccordionItemOpenContext = React.createContext(false)
+
 function Accordion({
   className,
   ...props
 }: React.ComponentProps<typeof AccordionPrimitive.Root>) {
+  const currentValue = props.value !== undefined ? props.value : props.defaultValue
   return (
-    <AccordionPrimitive.Root
-      data-slot="accordion"
-      className={cn("flex w-full flex-col", className)}
-      {...props}
-    />
+    <AccordionValueContext.Provider value={currentValue}>
+      <AccordionPrimitive.Root
+        data-slot="accordion"
+        className={cn("flex w-full flex-col", className)}
+        {...props}
+      />
+    </AccordionValueContext.Provider>
   )
 }
 
 function AccordionItem({
   className,
+  children,
+  value,
   ...props
 }: React.ComponentProps<typeof AccordionPrimitive.Item>) {
+  const rootValue = React.useContext(AccordionValueContext)
+  const open = Array.isArray(rootValue)
+    ? rootValue.includes(value)
+    : rootValue === value
   return (
-    <AccordionPrimitive.Item
-      data-slot="accordion-item"
-      className={cn("not-last:border-b", className)}
-      {...props}
-    />
+    <AccordionItemOpenContext.Provider value={open}>
+      <AccordionPrimitive.Item
+        data-slot="accordion-item"
+        value={value}
+        className={cn("not-last:border-b", className)}
+        {...props}
+      >
+        {children}
+      </AccordionPrimitive.Item>
+    </AccordionItemOpenContext.Provider>
   )
 }
 
@@ -57,22 +76,44 @@ function AccordionContent({
   children,
   ...props
 }: React.ComponentProps<typeof AccordionPrimitive.Content>) {
+  const open = React.useContext(AccordionItemOpenContext)
   return (
     <AccordionPrimitive.Content
       data-slot="accordion-content"
-      className="overflow-hidden text-sm data-open:animate-accordion-down data-closed:animate-accordion-up"
+      forceMount
+      className="overflow-hidden text-sm"
+      aria-hidden={!open}
       {...props}
     >
       <div
+        inert={!open}
         className={cn(
-          "h-(--radix-accordion-content-height) pt-0 pb-2.5 [&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-foreground [&_p:not(:last-child)]:mb-4",
-          className
+          "grid transition-[grid-template-rows,opacity] duration-[400ms] ease-in-out-strong",
+          open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
         )}
       >
-        {children}
+        <div
+          className={cn(
+            "min-h-0 overflow-hidden",
+            !open && "pointer-events-none"
+          )}
+        >
+          <div
+            className={cn(
+              "pt-0 pb-2.5 [&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-foreground [&_p:not(:last-child)]:mb-4",
+              className
+            )}
+          >
+            {children}
+          </div>
+        </div>
       </div>
     </AccordionPrimitive.Content>
   )
 }
 
-export { Accordion, AccordionItem, AccordionTrigger, AccordionContent }
+function useAccordionItemOpen() {
+  return React.useContext(AccordionItemOpenContext)
+}
+
+export { Accordion, AccordionItem, AccordionTrigger, AccordionContent, useAccordionItemOpen }
