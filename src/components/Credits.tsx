@@ -193,21 +193,28 @@ export function CreditsContent({
   return (
     <div
       className={cn(
-        "grid grid-cols-2 gap-x-[24px] text-[11px] leading-[13px] text-ink",
-        "max-md:grid-cols-1 max-md:gap-y-5 max-md:text-xs max-md:leading-[15px]",
+        "grid grid-cols-5 px-[32px] text-[11px] leading-[13px] text-ink",
+        "max-md:grid-cols-1 max-md:text-xs max-md:leading-[15px]",
         className,
       )}
     >
-      {left ? (
-        <div>
-          <CreditColumn text={left} />
-        </div>
-      ) : null}
-      {right ? (
-        <div>
-          <CreditColumn text={right} />
-        </div>
-      ) : null}
+      <div
+        className={cn(
+          "col-span-3 col-start-3 grid grid-cols-2 gap-x-[24px]",
+          "max-md:col-span-1 max-md:col-start-1 max-md:grid-cols-1 max-md:gap-y-5",
+        )}
+      >
+        {left ? (
+          <div>
+            <CreditColumn text={left} />
+          </div>
+        ) : null}
+        {right ? (
+          <div>
+            <CreditColumn text={right} />
+          </div>
+        ) : null}
+      </div>
     </div>
   );
 }

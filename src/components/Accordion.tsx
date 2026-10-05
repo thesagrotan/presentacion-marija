@@ -16,7 +16,7 @@ export function Accordion({ films, activeId, onValueChange }: AccordionProps) {
       value={activeId ?? ""}
       onValueChange={(value) => onValueChange(value || null)}
       aria-label="Films"
-      className="w-full shrink-0 gap-6 text-film transition-[color] duration-[400ms] ease-in-out-strong md:w-[220px] lg:w-[244px]"
+      className="w-full shrink-0 gap-6 text-film transition-[color] duration-[400ms] ease-in-out-strong md:w-[260px] lg:w-[300px]"
     >
       {films.map((film) => (
         <FilmItem key={film.id} film={film} />

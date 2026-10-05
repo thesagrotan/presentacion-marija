@@ -33,8 +33,8 @@ export function FilmDetail({
         alt={`Still from ${film.title}`}
       />
       {hasCredits ? (
-        <div className="mt-5 pr-[var(--pad)] max-md:mt-4 max-md:pr-0">
-          <div className="flex justify-end max-md:justify-start">
+        <div className="mt-5 max-md:mt-4">
+          <div className="flex justify-end px-[32px] max-md:justify-start">
             <CreditsToggle
               open={creditsOpen}
               onToggle={() => onCreditsChange(!creditsOpen)}
@@ -51,10 +51,7 @@ export function FilmDetail({
           >
             <div className="min-h-0 overflow-hidden">
               <div className="pt-4">
-                <CreditsContent
-                  film={film}
-                  className="ml-auto w-[min(720px,100%)]"
-                />
+                <CreditsContent film={film} />
               </div>
             </div>
           </div>

@@ -33,8 +33,8 @@ function FilmItemBody({ film }: { film: Film }) {
         <div className="min-h-0 overflow-hidden">
           <Separator
             className={cn(
-              "mb-[23px] h-px w-6 origin-left bg-current transition-[transform,opacity] duration-[400ms] ease-out-strong data-horizontal:w-6",
-              open ? "scale-x-100 opacity-100" : "scale-x-0 opacity-0"
+              "mb-4 h-px w-full origin-left bg-current transition-[transform,opacity] duration-[400ms] ease-out-strong data-horizontal:w-full",
+              open ? "scale-x-100 opacity-40" : "scale-x-0 opacity-0"
             )}
           />
         </div>
@@ -55,8 +55,8 @@ function FilmItemBody({ film }: { film: Film }) {
         <Separator
           aria-hidden="true"
           className={cn(
-            "mt-6 h-px w-6 origin-left bg-current transition-[transform,opacity] duration-[400ms] ease-out-strong data-horizontal:w-6",
-            open ? "scale-x-100 opacity-100" : "scale-x-0 opacity-0"
+            "mt-4 h-px w-full origin-left bg-current transition-[transform,opacity] duration-[400ms] ease-out-strong data-horizontal:w-full",
+            open ? "scale-x-100 opacity-40" : "scale-x-0 opacity-0"
           )}
         />
       </AccordionContent>

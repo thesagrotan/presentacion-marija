@@ -70,7 +70,7 @@ export function Portfolio() {
         className="absolute inset-0 flex items-center gap-[var(--gap)] pl-[var(--pad)] max-md:static max-md:flex-1 max-md:flex-col max-md:items-stretch max-md:justify-center max-md:gap-8 max-md:pl-0 data-[expanded=true]:max-md:justify-start"
         data-expanded={activeFilm ? "true" : "false"}
       >
-        <div className="portfolio-column flex shrink-0 flex-col gap-6 md:w-[220px] lg:w-[244px]">
+        <div className="portfolio-column flex shrink-0 flex-col gap-6 md:w-[260px] lg:w-[300px]">
           <div ref={headerRef}>
             <BioHeader expanded={readMore} onToggle={() => setReadMore((v) => !v)} />
           </div>
