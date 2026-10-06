@@ -1,0 +1,36 @@
+---
+import type { CollectionEntry } from "astro:content";
+import { render } from "astro:content";
+
+interface Props {
+  film: CollectionEntry<"films">;
+}
+
+const { film } = Astro.props;
+const { Content } = await render(film);
+---
+
+<div class="film-item flex flex-col" data-film-wrapper data-id={film.id} data-open="false">
+  <div class="film-rule-top grid" aria-hidden="true">
+    <div class="min-h-0 overflow-hidden">
+      <hr class="film-rule mb-4 h-px w-full border-0 bg-current origin-left" />
+    </div>
+  </div>
+  <button type="button" data-film-item data-id={film.id} data-bg={film.data.bg} data-text={film.data.text}
+    aria-expanded="false" aria-controls={`film-panel-${film.id}`}
+    class="group/accordion-trigger flex w-full origin-left items-start justify-start rounded-none py-0 text-left font-normal transition-transform duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current active:scale-[0.97]">
+    <span class="font-serif text-[17.5px] leading-[1.25] font-normal group-hover/accordion-trigger:underline group-hover/accordion-trigger:underline-offset-[3px] max-[389px]:text-[15.5px]">
+      {film.data.title}
+    </span>
+  </button>
+  <div id={`film-panel-${film.id}`} data-film-panel role="region" aria-label={`${film.data.title} description`} class="film-panel grid">
+    <div class="min-h-0 overflow-hidden">
+      <div class="pb-2.5">
+        <div class="mt-2 text-sm leading-[1.25] max-[389px]:text-[13px] [&_p]:m-0">
+          <Content />
+        </div>
+        <hr class="film-rule mt-4 h-px w-full border-0 bg-current origin-left" aria-hidden="true" />
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,182 @@
+/*
+ * Portfolio interaction states. The markup is server-rendered by the .astro
+ * components; `src/scripts/portfolio.ts` only flips data attributes here.
+ * Mirrors the state owned by the former React `Portfolio.tsx`.
+ */
+
+/* Root shell: per-film background + text palette, set inline by the island. */
+#portfolio {
+    background-color: var(--film-bg);
+    transition: background-color 420ms cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+/* ------------------------------------------------------------------ */
+/* Accordion item                                                      */
+/* ------------------------------------------------------------------ */
+
+.film-item .film-rule-top {
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 420ms cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+.film-item[data-open="true"] .film-rule-top {
+    grid-template-rows: 1fr;
+    transition-duration: 240ms;
+}
+
+.film-item .film-panel {
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transition:
+        grid-template-rows 420ms cubic-bezier(0.77, 0, 0.175, 1),
+        opacity 420ms cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+.film-item[data-open="true"] .film-panel {
+    grid-template-rows: 1fr;
+    opacity: 1;
+    transition-duration: 240ms;
+}
+
+.film-item .film-rule {
+    transform: scaleX(0);
+    opacity: 0;
+    transform-origin: left center;
+    transition:
+        transform 400ms cubic-bezier(0.23, 1, 0.32, 1),
+        opacity 400ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.film-item[data-open="true"] .film-rule {
+    transform: scaleX(1);
+    opacity: 0.4;
+}
+
+/* ------------------------------------------------------------------ */
+/* Detail stack: all stills render server-side, stacked in one cell.   */
+/* ------------------------------------------------------------------ */
+
+.detail-stack {
+    display: none;
+}
+
+#portfolio[data-detail="true"] .detail-stack {
+    display: grid;
+    flex: 1 1 0%;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+    align-items: center;
+    min-width: 0;
+}
+
+#portfolio[data-detail="true"] .detail-stack > * {
+    grid-column-start: 1;
+    grid-row-start: 1;
+}
+
+#portfolio[data-readmore="true"] .detail-stack {
+    visibility: hidden;
+}
+
+[data-film-detail] {
+    opacity: 0;
+    transform: scale(1.02);
+    pointer-events: none;
+    transition:
+        opacity 350ms cubic-bezier(0.23, 1, 0.32, 1),
+        transform 350ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+[data-film-detail][data-active="true"] {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+}
+
+@media (max-width: 767px) {
+    #portfolio[data-detail="true"] .detail-stack {
+        display: block;
+        flex: none;
+    }
+    [data-film-detail][data-active="false"] {
+        display: none;
+    }
+}
+
+/* ------------------------------------------------------------------ */
+/* Credits                                                             */
+/* ------------------------------------------------------------------ */
+
+.credits-region {
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transition:
+        grid-template-rows 240ms cubic-bezier(0.77, 0, 0.175, 1),
+        opacity 240ms cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+[data-film-detail][data-credits-open="true"] .credits-region {
+    grid-template-rows: 1fr;
+    opacity: 1;
+}
+
+/* ------------------------------------------------------------------ */
+/* Read-more panel + header labels                                     */
+/* ------------------------------------------------------------------ */
+
+#read-more-panel {
+    opacity: 0;
+    transform: scale(0.98);
+    pointer-events: none;
+    transition:
+        opacity 300ms cubic-bezier(0.23, 1, 0.32, 1),
+        transform 300ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+#portfolio[data-readmore="true"] #read-more-panel {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+}
+
+[data-readmore-label="about"] {
+    opacity: 1;
+    filter: blur(0);
+    transition:
+        opacity 150ms ease-out,
+        filter 150ms ease-out;
+}
+
+[data-readmore-label="close"] {
+    opacity: 0;
+    filter: blur(2px);
+    transition:
+        opacity 150ms ease-out,
+        filter 150ms ease-out;
+}
+
+#portfolio[data-readmore="true"] [data-readmore-label="about"] {
+    opacity: 0;
+    filter: blur(2px);
+}
+
+#portfolio[data-readmore="true"] [data-readmore-label="close"] {
+    opacity: 1;
+    filter: blur(0);
+}
+
+/* Scroll-area edge fade, toggled by the island when more content follows. */
+.rm-viewport[data-faded="true"] {
+    -webkit-mask-image: linear-gradient(
+        to bottom,
+        black 0,
+        black calc(100% - 32px),
+        transparent 100%
+    );
+    mask-image: linear-gradient(
+        to bottom,
+        black 0,
+        black calc(100% - 32px),
+        transparent 100%
+    );
+}

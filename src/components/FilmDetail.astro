@@ -1,0 +1,51 @@
+---
+import { Image } from "astro:assets";
+import type { CollectionEntry } from "astro:content";
+import Credits from "@/components/Credits.astro";
+
+interface Props {
+  film: CollectionEntry<"films">;
+}
+const { film } = Astro.props;
+const credits = film.data.credits;
+const hasCredits = Boolean(credits.left.trim() || credits.right.trim());
+---
+
+<figure class="film-detail relative m-0 w-full" data-film-detail data-id={film.id} data-active="false">
+  <Image
+    src={film.data.still}
+    alt={`Still from ${film.data.title}`}
+    widths={[640, 960, 1280, 1856]}
+    sizes="(min-width: 1024px) 928px, 100vw"
+    loading="lazy"
+    class="aspect-[256/135] w-full bg-black/5 object-cover object-center max-md:aspect-video"
+  />
+  {hasCredits && (
+    <div class="mt-5 max-md:mt-4">
+      <div class="flex justify-end px-[32px] max-md:justify-start">
+        <button
+          type="button"
+          data-credits-toggle
+          aria-expanded="false"
+          aria-controls={`film-credits-${film.id}`}
+          class="text-[10px] font-medium uppercase tracking-[0.12em] text-ink/70 underline-offset-[3px] transition-colors duration-150 ease-out-strong hover:text-ink hover:underline focus-visible:text-ink focus-visible:underline focus-visible:outline-none"
+        >
+          Credits
+        </button>
+      </div>
+      <div
+        id={`film-credits-${film.id}`}
+        data-credits-region
+        role="region"
+        aria-label="Film credits"
+        class="credits-region grid"
+      >
+        <div class="min-h-0 overflow-hidden">
+          <div class="pt-4">
+            <Credits credits={credits} />
+          </div>
+        </div>
+      </div>
+    </div>
+  )}
+</figure>

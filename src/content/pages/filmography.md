@@ -1,6 +1,9 @@
-export const filmography = {
-  heading: "FILMOGRAPHY & FESTIVALS",
-  body: `The Enigma of an Autumn Afternoon, 4min, 2026
+---
+title: Filmography
+heading: FILMOGRAPHY & FESTIVALS
+---
+
+The Enigma of an Autumn Afternoon, 4min, 2026
 ASA Open Studios HFBK, Hamburg, Germany, 2026
 Filmkunsttage Sachsen Anhalt, Germany, 2026
 43. Kassel Documentary Film and Video Festival, Kassel, Germany, 2026
@@ -53,5 +56,4 @@ Star Film Festival Sisak, Croatia, 2018
 /fu:bar/ art glitch festival Zagreb, Croatia, 2018
 50. Revija hrvatskog filmskog stvaralaštva Zagreb, Croatia, 2018
 Croatia Fashion Film Festival Korčula, Croatia, 2019
-Local film showcase - Grrl Haus Cinema Berlin, Germany,2019`,
-};
+Local film showcase - Grrl Haus Cinema Berlin, Germany,2019

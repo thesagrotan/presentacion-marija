@@ -1,0 +1,69 @@
+---
+import { getCollection, render } from "astro:content";
+import { Image } from "astro:assets";
+import Base from "@/layouts/Base.astro";
+import Credits from "@/components/Credits.astro";
+
+export async function getStaticPaths() {
+  const films = await getCollection("films", ({ data }) => !data.draft);
+  return films.map((film) => ({ params: { id: film.id }, props: { film } }));
+}
+
+const { film } = Astro.props;
+const { Content } = await render(film);
+
+const description =
+  film.body?.replace(/\s+/g, " ").trim().slice(0, 155) || undefined;
+
+const hasCredits = Boolean(
+  film.data.credits.left.trim() || film.data.credits.right.trim(),
+);
+---
+
+<Base title={`${film.data.title} — Marija Arakelyan Lučić`} description={description}>
+  <main
+    id="film-page"
+    style={`--film-bg:${film.data.bg};--film-text:${film.data.text}`}
+    class="min-h-dvh bg-[var(--film-bg)] text-[var(--film-text)]"
+  >
+    <div
+      class="mx-auto flex min-h-dvh w-full max-w-[1024px] flex-col p-[var(--pad)]"
+    >
+      <header class="flex items-center">
+        <a
+          href="/"
+          class="text-sm leading-[1.45] underline decoration-current/40 underline-offset-4 transition-opacity duration-150 hover:opacity-70 focus-visible:opacity-70 focus-visible:outline-none"
+        >
+          ← Marija Arakelyan Lučić
+        </a>
+      </header>
+
+      <article class="flex flex-1 flex-col gap-8 pt-10">
+        <h1 class="max-w-[680px] font-serif text-[17.5px] leading-[1.25]">
+          {film.data.title}
+        </h1>
+
+        <Image
+          src={film.data.still}
+          alt={`Still from ${film.data.title}`}
+          widths={[640, 960, 1280, 1856]}
+          sizes="(min-width: 1024px) 928px, 100vw"
+          loading="eager"
+          class="aspect-[256/135] w-full bg-black/5 object-cover object-center max-md:aspect-video"
+        />
+
+        <div class="max-w-[680px] text-sm leading-[1.45]">
+          <Content />
+        </div>
+      </article>
+
+      {
+        hasCredits && (
+          <footer class="mt-auto border-t border-current/20 pt-6 max-md:pt-5">
+            <Credits credits={film.data.credits} />
+          </footer>
+        )
+      }
+    </div>
+  </main>
+</Base>

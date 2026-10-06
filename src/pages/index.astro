@@ -1,0 +1,62 @@
+---
+import { getCollection, getEntry } from "astro:content";
+import Base from "@/layouts/Base.astro";
+import BioHeader from "@/components/BioHeader.astro";
+import FilmAccordion from "@/components/FilmAccordion.astro";
+import FilmDetail from "@/components/FilmDetail.astro";
+import ReadMorePanel from "@/components/ReadMorePanel.astro";
+import PortfolioIsland from "@/components/PortfolioIsland";
+import "@/styles/portfolio.css";
+
+const films = (await getCollection("films", ({ data }) => !data.draft)).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+
+const about = await getEntry("pages", "about");
+const filmography = await getEntry("pages", "filmography");
+
+if (!about || !filmography) {
+  throw new Error("Missing about.md or filmography.md in src/content/pages");
+}
+---
+
+<Base>
+  <PortfolioIsland client:load>
+    <div
+      class="absolute inset-0 flex items-center gap-[var(--gap)] pl-[var(--pad)] max-md:static max-md:flex-1 max-md:flex-col max-md:items-stretch max-md:justify-center max-md:gap-8 max-md:pl-0 data-[expanded=true]:max-md:justify-start"
+      data-stage
+      data-expanded="false"
+    >
+      <button
+        id="read-more-toggle"
+        data-readmore-toggle
+        type="button"
+        aria-expanded="false"
+        aria-controls="read-more-panel"
+        class="absolute top-[var(--pad)] right-[var(--pad)] z-20 h-auto shrink-0 rounded-none p-0 text-sm leading-4 font-normal text-ink no-underline hover:underline focus-visible:outline-none focus-visible:underline"
+      >
+        <span class="grid text-right">
+          <span data-readmore-label="about" aria-hidden="false" class="col-start-1 row-start-1">about</span>
+          <span data-readmore-label="close" aria-hidden="true" class="col-start-1 row-start-1">close</span>
+        </span>
+      </button>
+      <div
+        class="flex shrink-0 flex-col gap-6 self-start pt-[var(--pad)] md:w-[260px] lg:w-[300px] max-md:self-auto max-md:w-full max-md:pt-0"
+      >
+        <div
+          data-bio-header
+          class="w-[min(497px,calc(100vw-var(--pad)*2))] max-md:w-full max-md:pr-14"
+        >
+          <BioHeader />
+        </div>
+        <div class="portfolio-column">
+          <FilmAccordion films={films} />
+        </div>
+      </div>
+      <div class="detail-stack min-w-0 items-center">
+        {films.map((film) => <FilmDetail film={film} />)}
+      </div>
+    </div>
+    <ReadMorePanel about={about} filmography={filmography} />
+  </PortfolioIsland>
+</Base>

@@ -1,0 +1,14 @@
+---
+import type { CollectionEntry } from "astro:content";
+import FilmItem from "./FilmItem.astro";
+
+interface Props {
+  films: CollectionEntry<"films">[];
+}
+
+const { films } = Astro.props;
+---
+
+<div data-accordion aria-label="Films" class="flex w-full shrink-0 flex-col gap-6 text-film transition-[color] duration-[400ms] ease-in-out-strong md:w-[260px] lg:w-[300px]">
+  {films.map((film) => <FilmItem film={film} />)}
+</div>

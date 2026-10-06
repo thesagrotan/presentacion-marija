@@ -1,0 +1,118 @@
+@import "tailwindcss";
+@import "@fontsource-variable/geist";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+    --font-heading: var(--font-sans);
+    --font-sans: 'Geist Variable', sans-serif;
+    --font-serif: Georgia, "Times New Roman", serif;
+
+    /* Strong custom easings (built-in CSS curves are too weak). */
+    --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
+    --ease-in-out-strong: cubic-bezier(0.77, 0, 0.175, 1);
+
+    /* Per-film palette — set inline on the portfolio shell. */
+    --color-film: var(--film-text);
+    --color-film-bg: var(--film-bg);
+    --color-ink: var(--ink);
+    --color-bio: var(--bio);
+
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-border: var(--border);
+    --color-ring: var(--ring);
+
+    --radius-sm: calc(var(--radius) * 0.6);
+    --radius-md: calc(var(--radius) * 0.8);
+    --radius-lg: var(--radius);
+    --radius-xl: calc(var(--radius) * 1.4);
+}
+
+:root {
+    --background: oklch(1 0 0);
+    --foreground: oklch(0.145 0 0);
+    --border: oklch(0.922 0 0);
+    --ring: oklch(0.708 0 0);
+    --radius: 0.625rem;
+
+    /* Portfolio design tokens (see SPEC.md). */
+    --pad: 24px;
+    --gap: clamp(48px, 7vw, 104px);
+    --rest: 0px;
+    --ink: #000000;
+    --bio: #121212;
+    --film-bg: #ffffff;
+    --film-text: #12140b;
+}
+
+/* Responsive page padding: tablet 32, desktop 48. */
+@media (min-width: 768px) {
+    :root {
+        --pad: 32px;
+        --rest: clamp(40px, 6vw, 96px);
+    }
+}
+
+@media (min-width: 1024px) {
+    :root {
+        --pad: 48px;
+    }
+}
+
+/*
+ * "Hold the frame": the accordion column rests slightly inset on the right while
+ * collapsed and settles to the left edge when a film is open. One transform on the
+ * whole column, timed to the accordion's own vertical opening so it reads as a single
+ * coordinated move rather than many sliding elements.
+ */
+.portfolio-column {
+    transition: transform 240ms cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+@media (min-width: 768px) {
+    [data-expanded="false"] .portfolio-column {
+        transform: translateX(var(--rest));
+        transition-duration: 420ms;
+    }
+}
+
+@layer base {
+    * {
+        @apply border-border outline-ring/50;
+    }
+    body {
+        @apply bg-background text-foreground;
+    }
+    html {
+        @apply font-sans;
+    }
+    html,
+    body {
+        min-height: 100%;
+    }
+    body {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+    }
+
+    /* Remove movement; keep comprehension-aiding color/opacity fades, just gentler. */
+    *,
+    *::before,
+    *::after {
+        transition-property: color, background-color, border-color, fill, stroke, opacity !important;
+        transition-duration: 200ms !important;
+        transition-timing-function: ease !important;
+    }
+}
