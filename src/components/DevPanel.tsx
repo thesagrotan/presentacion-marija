@@ -10,6 +10,7 @@ import {
   rgbToHex,
   wcagContrast,
 } from "@/lib/color";
+import { DEFAULT_THEME_ID, HOME_BG, HOME_TEXT } from "@/lib/theme";
 
 export interface DevFilm {
   id: string;
@@ -87,11 +88,18 @@ function resolveTarget(clientX: number, clientY: number): Target | null {
       };
     }
 
-    if (activeId && el.closest("#portfolio")) {
+    if (el.closest("#portfolio")) {
       const shell = document.querySelector<HTMLElement>("#portfolio");
       if (shell) {
         const rect = shell.getBoundingClientRect();
-        return { id: activeId, kind: "bg", x: rect.left, y: rect.top, w: rect.width, h: rect.height };
+        return {
+          id: activeId ?? DEFAULT_THEME_ID,
+          kind: "bg",
+          x: rect.left,
+          y: rect.top,
+          w: rect.width,
+          h: rect.height,
+        };
       }
     }
   }
@@ -177,11 +185,18 @@ function sampleImage(
   return rgbToHex(entry.data[i], entry.data[i + 1], entry.data[i + 2]);
 }
 
-function initialColors(films: DevFilm[]): Colors {
-  const base: Colors = {};
+function baseColors(films: DevFilm[]): Colors {
+  const base: Colors = {
+    [DEFAULT_THEME_ID]: { bg: hexToHsl(HOME_BG), text: hexToHsl(HOME_TEXT) },
+  };
   for (const film of films) {
     base[film.id] = { bg: hexToHsl(film.bg), text: hexToHsl(film.text) };
   }
+  return base;
+}
+
+function initialColors(films: DevFilm[]): Colors {
+  const base = baseColors(films);
   if (typeof localStorage !== "undefined") {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -326,8 +341,8 @@ function ContrastCheck({ text, bg }: { text: string; bg: string }) {
           </div>
           <div class="mt-1.5 h-1 w-full overflow-hidden rounded-full bg-white/10">
             <div
-              class={`h-full rounded-full transition-[width] duration-150 ${tone.bar}`}
-              style={{ width: `${meter}%` }}
+              class={`h-full origin-left rounded-full transition-transform duration-150 ${tone.bar}`}
+              style={{ transform: `scaleX(${meter / 100})` }}
             />
           </div>
         </div>
@@ -362,6 +377,18 @@ export default function DevPanel({ films }: { films: DevFilm[] }) {
       window.dispatchEvent(
         new CustomEvent("dev:film-theme", {
           detail: { id: film.id, bg, text },
+        }),
+      );
+    }
+    const home = colors[DEFAULT_THEME_ID];
+    if (home) {
+      window.dispatchEvent(
+        new CustomEvent("dev:film-theme", {
+          detail: {
+            id: DEFAULT_THEME_ID,
+            bg: hslToHex(home.bg),
+            text: hslToHex(home.text),
+          },
         }),
       );
     }
@@ -438,11 +465,7 @@ export default function DevPanel({ films }: { films: DevFilm[] }) {
   };
 
   const reset = (): void => {
-    const base: Colors = {};
-    for (const film of films) {
-      base[film.id] = { bg: hexToHsl(film.bg), text: hexToHsl(film.text) };
-    }
-    setColors(base);
+    setColors(baseColors(films));
   };
 
   const copy = async (kind: "yaml" | "prompt", text: string): Promise<void> => {
@@ -481,7 +504,12 @@ export default function DevPanel({ films }: { films: DevFilm[] }) {
     return copy("prompt", prompt);
   };
 
-  const editFilm = edit ? films.find((film) => film.id === edit.id) : null;
+  const titleFor = (id: string): string =>
+    id === DEFAULT_THEME_ID
+      ? "Home"
+      : (films.find((film) => film.id === id)?.title ?? id);
+
+  const editTitle = edit ? titleFor(edit.id) : "";
 
   return (
     <>
@@ -507,8 +535,7 @@ export default function DevPanel({ films }: { films: DevFilm[] }) {
           }}
         >
           <span class="absolute -top-5 left-0 rounded bg-sky-500 px-1.5 py-0.5 font-mono text-[10px] whitespace-nowrap text-white">
-            {films.find((film) => film.id === hover.id)?.title} ·{" "}
-            {hover.kind === "bg" ? "background" : "text"}
+            {titleFor(hover.id)} · {hover.kind === "bg" ? "background" : "text"}
           </span>
         </div>
       )}
@@ -533,7 +560,7 @@ export default function DevPanel({ films }: { films: DevFilm[] }) {
         </div>
       )}
 
-      {edit && editFilm && (
+      {edit && (
         <div
           data-dev-ui
           class="fixed z-[110] w-[264px] rounded-xl border border-white/10 bg-neutral-900/95 p-3 text-neutral-100 shadow-2xl backdrop-blur"
@@ -548,7 +575,7 @@ export default function DevPanel({ films }: { films: DevFilm[] }) {
               style={{ background: hslToHex(colors[edit.id][edit.kind]) }}
             />
             <span class="truncate text-[11px] font-medium text-neutral-200">
-              {editFilm.title}
+              {editTitle}
             </span>
             <button
               type="button"
@@ -624,7 +651,7 @@ export default function DevPanel({ films }: { films: DevFilm[] }) {
       >
         {inspect && (
           <span class="rounded-md bg-neutral-900/95 px-2 py-1 font-mono text-[10px] text-neutral-300 shadow-lg backdrop-blur">
-            click text, or select a film and click the background
+            click text, or click the background
           </span>
         )}
         <div class="flex items-center gap-1 rounded-full border border-white/10 bg-neutral-900/95 p-1 shadow-lg backdrop-blur">

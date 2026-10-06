@@ -2,7 +2,7 @@
 title: Filmography
 heading: FILMOGRAPHY & FESTIVALS
 ---
-
+ 
 The Enigma of an Autumn Afternoon, 4min, 2026
 ASA Open Studios HFBK, Hamburg, Germany, 2026
 Filmkunsttage Sachsen Anhalt, Germany, 2026

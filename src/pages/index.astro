@@ -34,7 +34,7 @@ if (!about || !filmography) {
         type="button"
         aria-expanded="false"
         aria-controls="about-panel"
-        class="absolute top-[var(--pad)] right-[var(--pad)] z-20 h-auto shrink-0 rounded-none p-0 text-sm leading-4 font-normal text-film transition-[color] duration-[400ms] ease-out-strong no-underline hover:underline focus-visible:outline-none focus-visible:underline"
+        class="absolute top-[var(--pad)] right-[var(--pad)] z-20 h-auto shrink-0 rounded-none p-0 pb-[var(--pad)] text-sm leading-4 font-normal text-film transition-[color,transform] duration-[400ms,150ms] ease-out-strong no-underline hover:underline focus-visible:outline-none focus-visible:underline motion-safe:active:scale-[0.97]"
       >
         <span class="grid text-right">
           <span data-readmore-label="about" aria-hidden="false" class="col-start-1 row-start-1">about</span>
@@ -42,11 +42,11 @@ if (!about || !filmography) {
         </span>
       </button>
       <div
-        class="flex shrink-0 flex-col gap-8 self-start pt-[var(--pad)] md:w-[16.25rem] lg:w-[18.75rem] max-md:self-auto max-md:w-full max-md:pt-0"
+        class="flex shrink-0 flex-col self-start pt-[var(--pad)] md:w-[16.25rem] lg:w-[18.75rem] max-md:self-auto max-md:w-full max-md:pt-0"
       >
         <div
           data-bio-header
-          class="w-[min(31.0625rem,calc(100vw-var(--pad)*2))] max-md:w-full max-md:pr-14"
+          class="w-[min(31.0625rem,calc(100vw-var(--pad)*2))] pb-[var(--pad)] max-md:w-full max-md:pr-14"
         >
           <BioHeader />
         </div>

@@ -168,6 +168,8 @@
     opacity: 0;
     transform: scale(0.98);
     pointer-events: none;
+    /* content-visibility skips the hidden subtree's layout/paint; safe because the element is fixed and sized by its insets, and opacity/transform transition on the element itself. */
+    content-visibility: hidden;
     transition:
         opacity 300ms cubic-bezier(0.23, 1, 0.32, 1),
         transform 300ms cubic-bezier(0.23, 1, 0.32, 1);
@@ -177,6 +179,7 @@
     opacity: 1;
     transform: none;
     pointer-events: auto;
+    content-visibility: visible;
 }
 
 /* About replaces the film accordion in place. */

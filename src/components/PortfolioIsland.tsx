@@ -1,8 +1,6 @@
 import { useEffect } from "preact/hooks";
 import type { ComponentChildren } from "preact";
-
-const HOME_BG = "#FFFFFF";
-const FILM_TEXT = "#12140B";
+import { DEFAULT_THEME_ID, HOME_BG, HOME_TEXT } from "@/lib/theme";
 
 export default function PortfolioIsland({
   children,
@@ -18,6 +16,42 @@ export default function PortfolioIsland({
 
     const mobile = window.matchMedia("(max-width: 767px)");
     const detailStack = portfolio.querySelector<HTMLElement>(".detail-stack");
+    const aboutPanel = portfolio.querySelector<HTMLElement>("#about-panel");
+
+    const detailImage = (detail: HTMLElement): HTMLImageElement | null =>
+      detail.querySelector<HTMLImageElement>("img.film-still");
+
+    const stubDetailImage = (detail: HTMLElement): void => {
+      const img = detailImage(detail);
+      if (!img || img.dataset.deferred === "true") return;
+      const src = img.getAttribute("src");
+      const srcset = img.getAttribute("srcset");
+      if (src) img.dataset.src = src;
+      if (srcset) img.dataset.srcset = srcset;
+      img.removeAttribute("src");
+      img.removeAttribute("srcset");
+      img.dataset.deferred = "true";
+    };
+
+    const restoreDetailImage = (detail: HTMLElement): void => {
+      const img = detailImage(detail);
+      if (!img || img.dataset.deferred !== "true") return;
+      const src = img.dataset.src;
+      const srcset = img.dataset.srcset;
+      if (src) img.setAttribute("src", src);
+      if (srcset) img.setAttribute("srcset", srcset);
+      delete img.dataset.src;
+      delete img.dataset.srcset;
+      img.dataset.deferred = "false";
+    };
+
+    portfolio
+      .querySelectorAll<HTMLElement>("[data-film-detail]")
+      .forEach((detail) => {
+        detail.inert = true;
+        stubDetailImage(detail);
+      });
+    if (aboutPanel) aboutPanel.inert = true;
 
     const placeDetails = (id: string | null): void => {
       portfolio
@@ -37,8 +71,10 @@ export default function PortfolioIsland({
           if (home && detail.parentElement !== home) home.appendChild(detail);
         });
     };
-    let activeBg = HOME_BG;
-    let activeText = FILM_TEXT;
+    let homeBg = HOME_BG;
+    let homeText = HOME_TEXT;
+    let activeBg = homeBg;
+    let activeText = homeText;
 
     const setTheme = (bg: string, text: string): void => {
       portfolio.style.setProperty("--film-bg", bg);
@@ -57,8 +93,8 @@ export default function PortfolioIsland({
       if (id) portfolio.setAttribute("data-detail", "true");
       activeId = id;
 
-      let bg = HOME_BG;
-      let text = FILM_TEXT;
+      let bg = homeBg;
+      let text = homeText;
 
       portfolio
         .querySelectorAll<HTMLElement>("[data-film-wrapper]")
@@ -69,8 +105,8 @@ export default function PortfolioIsland({
           if (!button) return;
           button.setAttribute("aria-expanded", isOpen ? "true" : "false");
           if (isOpen) {
-            bg = button.dataset.bg ?? HOME_BG;
-            text = button.dataset.text ?? FILM_TEXT;
+            bg = button.dataset.bg ?? homeBg;
+            text = button.dataset.text ?? homeText;
           }
         });
 
@@ -79,12 +115,14 @@ export default function PortfolioIsland({
         .forEach((detail) => {
           const isActive = detail.dataset.id === id;
           detail.setAttribute("data-active", isActive ? "true" : "false");
+          detail.inert = !isActive;
+          if (isActive) restoreDetailImage(detail);
           resetCredits(detail);
         });
 
       activeBg = bg;
       activeText = text;
-      setTheme(readMore ? HOME_BG : bg, readMore ? FILM_TEXT : text);
+      setTheme(readMore ? homeBg : bg, readMore ? homeText : text);
 
       placeDetails(id);
 
@@ -113,12 +151,13 @@ export default function PortfolioIsland({
     const toggleReadMore = (): void => {
       readMore = !readMore;
       portfolio.setAttribute("data-readmore", readMore ? "true" : "false");
-      setTheme(readMore ? HOME_BG : activeBg, readMore ? FILM_TEXT : activeText);
+      setTheme(readMore ? homeBg : activeBg, readMore ? homeText : activeText);
       const toggle = portfolio.querySelector<HTMLElement>("#read-more-toggle");
       if (toggle) {
         toggle.setAttribute("aria-expanded", readMore ? "true" : "false");
       }
       syncReadMoreLabels(readMore);
+      if (aboutPanel) aboutPanel.inert = !readMore;
     };
 
     const onClick = (event: Event): void => {
@@ -147,44 +186,91 @@ export default function PortfolioIsland({
       const detail = (event as CustomEvent).detail as
         | { id?: string; bg?: string; text?: string }
         | undefined;
-      if (!detail?.id || detail.id !== activeId) return;
+      if (!detail?.id) return;
+      if (detail.id === DEFAULT_THEME_ID) {
+        homeBg = detail.bg ?? homeBg;
+        homeText = detail.text ?? homeText;
+        if (!activeId && !readMore) setTheme(homeBg, homeText);
+        return;
+      }
+      if (detail.id !== activeId) return;
       activeBg = detail.bg ?? activeBg;
       activeText = detail.text ?? activeText;
       if (!readMore) setTheme(activeBg, activeText);
     };
 
+    const onPreload = (event: Event): void => {
+      const trigger = (event.target as HTMLElement | null)?.closest<HTMLElement>(
+        "[data-film-item]",
+      );
+      const id = trigger?.dataset.id;
+      if (!id) return;
+      const detail = portfolio.querySelector<HTMLElement>(
+        `[data-film-detail][data-id="${id}"]`,
+      );
+      if (detail) restoreDetailImage(detail);
+    };
+
     portfolio.addEventListener("click", onClick);
+    portfolio.addEventListener("pointerenter", onPreload, true);
+    portfolio.addEventListener("focusin", onPreload);
+    portfolio.addEventListener("pointerdown", onPreload);
     window.addEventListener("dev:film-theme", onDevTheme);
 
     const bioHeader = portfolio.querySelector<HTMLElement>("[data-bio-header]");
+    // Writing a custom property on the root invalidates style for the whole
+    // subtree, so coalesce to one write per frame and skip no-op updates.
+    // Resize fires far faster than the header's bottom actually changes.
+    let measureRaf = 0;
+    let lastTop = Number.NaN;
     const measure = (): void => {
       if (!bioHeader) return;
-      portfolio.style.setProperty(
-        "--readmore-top",
-        `${bioHeader.getBoundingClientRect().bottom}px`,
-      );
+      const top = Math.round(bioHeader.getBoundingClientRect().bottom);
+      if (top === lastTop) return;
+      lastTop = top;
+      portfolio.style.setProperty("--readmore-top", `${top}px`);
+    };
+    const scheduleMeasure = (): void => {
+      if (measureRaf) return;
+      measureRaf = requestAnimationFrame(() => {
+        measureRaf = 0;
+        measure();
+      });
     };
     measure();
-    window.addEventListener("resize", measure);
-    const resizeObserver = bioHeader ? new ResizeObserver(measure) : null;
+    window.addEventListener("resize", scheduleMeasure);
+    const resizeObserver = bioHeader
+      ? new ResizeObserver(scheduleMeasure)
+      : null;
     if (bioHeader) resizeObserver?.observe(bioHeader);
 
     const onBreakpoint = (): void => placeDetails(activeId);
     mobile.addEventListener("change", onBreakpoint);
 
     const viewport = portfolio.querySelector<HTMLElement>(".rm-viewport");
+    let viewportObserver: ResizeObserver | null = null;
+    // Scroll fires continuously; only touch the DOM when the edge state flips.
+    let faded = false;
+    let fadeRaf = 0;
     const updateFade = (): void => {
       if (!viewport) return;
       const more =
         viewport.scrollTop + viewport.clientHeight < viewport.scrollHeight - 1;
-      if (more) viewport.setAttribute("data-faded", "true");
-      else viewport.removeAttribute("data-faded");
+      if (more === faded) return;
+      faded = more;
+      viewport.toggleAttribute("data-faded", more);
     };
-    let viewportObserver: ResizeObserver | null = null;
+    const scheduleFade = (): void => {
+      if (fadeRaf) return;
+      fadeRaf = requestAnimationFrame(() => {
+        fadeRaf = 0;
+        updateFade();
+      });
+    };
     if (viewport) {
       updateFade();
-      viewport.addEventListener("scroll", updateFade, { passive: true });
-      viewportObserver = new ResizeObserver(updateFade);
+      viewport.addEventListener("scroll", scheduleFade, { passive: true });
+      viewportObserver = new ResizeObserver(scheduleFade);
       viewportObserver.observe(viewport);
       Array.from(viewport.children).forEach((child) =>
         viewportObserver?.observe(child),
@@ -193,11 +279,16 @@ export default function PortfolioIsland({
 
     return () => {
       portfolio.removeEventListener("click", onClick);
+      portfolio.removeEventListener("pointerenter", onPreload, true);
+      portfolio.removeEventListener("focusin", onPreload);
+      portfolio.removeEventListener("pointerdown", onPreload);
       window.removeEventListener("dev:film-theme", onDevTheme);
-      window.removeEventListener("resize", measure);
+      window.removeEventListener("resize", scheduleMeasure);
       mobile.removeEventListener("change", onBreakpoint);
       resizeObserver?.disconnect();
-      viewport?.removeEventListener("scroll", updateFade);
+      if (measureRaf) cancelAnimationFrame(measureRaf);
+      if (fadeRaf) cancelAnimationFrame(fadeRaf);
+      viewport?.removeEventListener("scroll", scheduleFade);
       viewportObserver?.disconnect();
     };
   }, []);
@@ -208,7 +299,7 @@ export default function PortfolioIsland({
       class="relative min-h-dvh overflow-x-hidden text-ink max-md:flex max-md:flex-col max-md:p-[var(--pad)]"
       data-readmore="false"
       data-detail="false"
-      style="--film-bg:#f1f1f1;--film-text:#12140B"
+      style={`--film-bg:${HOME_BG};--film-text:${HOME_TEXT}`}
     >
       {children}
     </div>
