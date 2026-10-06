@@ -1,9 +1,10 @@
 ---
 title: Exercise Zero
+meta: 6’, Germany, 2026
 order: 2
 still: ../../assets/stills/exercise-zero.jpg
-bg: "#93A98F"
-text: "#10160D"
+bg: "#5C7064"
+text: "#000000"
 credits:
   left: |
     Director: Marija Arakelyan Lucic

@@ -1,9 +1,10 @@
 ---
 title: The Enigma of an Autumn Afternoon
+meta: 4’, Germany, 2026
 order: 1
 still: ../../assets/stills/enigma.jpg
-bg: "#96A391"
-text: "#12140B"
+bg: "#606039"
+text: "#000000"
 credits:
   left: |
     Director: Marija Arakelyan Lučić

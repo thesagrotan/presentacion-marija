@@ -7,6 +7,7 @@ const films = defineCollection({
   schema: ({ image }) =>
     z.object({
       title: z.string(),
+      meta: z.string().default(""),
       order: z.number().default(0),
       still: image(),
       bg: z.string(),

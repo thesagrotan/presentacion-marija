@@ -1,0 +1,89 @@
+---
+import { render } from "astro:content";
+import type { CollectionEntry } from "astro:content";
+
+interface Props {
+  about: CollectionEntry<"pages">;
+  filmography: CollectionEntry<"pages">;
+}
+
+const { about, filmography } = Astro.props;
+const { Content } = await render(about);
+const heading = filmography.data.heading ?? "Filmography & Festivals";
+
+const lines = (filmography.body ?? "")
+  .split("\n")
+  .map((line) => line.trim())
+  .filter(Boolean);
+
+const isFilm = (line: string): boolean => /,\s*\d+\s*min/i.test(line);
+
+const groups = lines.reduce<{ title: string; screenings: string[] }[]>(
+  (acc, line) => {
+    if (isFilm(line)) acc.push({ title: line, screenings: [] });
+    else if (acc.length) acc[acc.length - 1].screenings.push(line);
+    return acc;
+  },
+  [],
+);
+
+const weight = (group: { screenings: string[] }): number =>
+  1 + group.screenings.length;
+
+const total = groups.reduce((sum, group) => sum + weight(group), 0);
+let split = groups.length;
+let running = 0;
+for (let i = 0; i < groups.length; i += 1) {
+  running += weight(groups[i]);
+  if (running >= total / 2) {
+    split = i + 1;
+    break;
+  }
+}
+
+const columns = [groups.slice(0, split), groups.slice(split)];
+---
+
+<section
+  id="about-panel"
+  aria-label="About, filmography and festivals"
+  class="fixed top-[calc(var(--readmore-top,calc(var(--pad)+3rem))+2rem)] right-[var(--pad)] bottom-[var(--pad)] left-[var(--pad)] z-30 origin-top-left overflow-y-auto text-bio md:overflow-hidden"
+>
+  <div
+    class="grid grid-cols-1 gap-x-[var(--gap)] gap-y-10 md:h-full md:min-h-0 md:grid-cols-3"
+  >
+    <div
+      class="text-sm leading-5 max-[389px]:text-[0.8125rem] [&_p]:m-0 [&_p+p]:mt-5"
+    >
+      <Content />
+    </div>
+
+    <div class="md:col-span-2 md:flex md:min-h-0 md:flex-col">
+      <div class="text-sm leading-4 uppercase">{heading}</div>
+      <div class="rm-viewport mt-4 md:min-h-0 md:flex-1 md:overflow-y-auto">
+        <div class="md:flex md:gap-x-[var(--gap)]">
+          {
+            columns.map((column) => (
+              <div class="md:flex-1">
+                {column.map((group) => (
+                  <div class="mb-5">
+                    <div class="text-sm leading-4 font-medium">
+                      {group.title}
+                    </div>
+                    {group.screenings.length > 0 && (
+                      <ul class="mt-1 list-disc pl-4 text-sm leading-4 max-[389px]:text-[0.8125rem]">
+                        {group.screenings.map((screening) => (
+                          <li>{screening}</li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

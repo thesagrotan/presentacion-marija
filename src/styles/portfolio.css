@@ -7,7 +7,7 @@
 /* Root shell: per-film background + text palette, set inline by the island. */
 #portfolio {
     background-color: var(--film-bg);
-    transition: background-color 420ms cubic-bezier(0.77, 0, 0.175, 1);
+    transition: background-color 420ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 /* ------------------------------------------------------------------ */
@@ -101,6 +101,46 @@
     [data-film-detail][data-active="false"] {
         display: none;
     }
+    [data-detail-slot] [data-film-detail] {
+        margin-top: 1.25rem;
+    }
+}
+
+/* ------------------------------------------------------------------ */
+/* Still image                                                         */
+/* ------------------------------------------------------------------ */
+
+.film-still {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-width: 100%;
+}
+
+/* On desktop the still is sized by width; cap the detail column's height to
+   the space below the top bar (bio header / about link) so a short viewport
+   shrinks the still proportionally instead of letting it ride over the top
+   bar. The credits row below the still is kept at its natural size. */
+@media (min-width: 768px) {
+    [data-film-detail] {
+        display: flex;
+        flex-direction: column;
+        max-height: calc(
+            100dvh - 2 * var(--readmore-top, calc(var(--pad) + 1rem))
+        );
+    }
+
+    [data-film-detail] > :not(.film-still) {
+        flex: none;
+    }
+
+    .film-still {
+        align-self: flex-end;
+        flex: 0 1 auto;
+        width: auto;
+        min-height: 0;
+        max-width: 100%;
+    }
 }
 
 /* ------------------------------------------------------------------ */
@@ -121,10 +161,10 @@
 }
 
 /* ------------------------------------------------------------------ */
-/* Read-more panel + header labels                                     */
+/* About columns + header labels                                       */
 /* ------------------------------------------------------------------ */
 
-#read-more-panel {
+#about-panel {
     opacity: 0;
     transform: scale(0.98);
     pointer-events: none;
@@ -133,10 +173,15 @@
         transform 300ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-#portfolio[data-readmore="true"] #read-more-panel {
+#portfolio[data-readmore="true"] #about-panel {
     opacity: 1;
     transform: none;
     pointer-events: auto;
+}
+
+/* About replaces the film accordion in place. */
+#portfolio[data-readmore="true"] [data-accordion] {
+    display: none;
 }
 
 [data-readmore-label="about"] {
@@ -170,13 +215,13 @@
     -webkit-mask-image: linear-gradient(
         to bottom,
         black 0,
-        black calc(100% - 32px),
+        black calc(100% - 2rem),
         transparent 100%
     );
     mask-image: linear-gradient(
         to bottom,
         black 0,
-        black calc(100% - 32px),
+        black calc(100% - 2rem),
         transparent 100%
     );
 }

@@ -9,6 +9,6 @@ interface Props {
 const { films } = Astro.props;
 ---
 
-<div data-accordion aria-label="Films" class="flex w-full shrink-0 flex-col gap-6 text-film transition-[color] duration-[400ms] ease-in-out-strong md:w-[260px] lg:w-[300px]">
+<div data-accordion aria-label="Films" class="flex w-full shrink-0 flex-col gap-6 text-film transition-[color] duration-[400ms] ease-out-strong md:w-[16.25rem] lg:w-[18.75rem]">
   {films.map((film) => <FilmItem film={film} />)}
 </div>

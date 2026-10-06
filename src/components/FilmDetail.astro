@@ -9,26 +9,35 @@ interface Props {
 const { film } = Astro.props;
 const credits = film.data.credits;
 const hasCredits = Boolean(credits.left.trim() || credits.right.trim());
+
+const still = film.data.still;
+const widths = [
+  ...new Set(
+    [640, 960, 1280, 1600, 1920, 2048]
+      .filter((w) => w <= still.width)
+      .concat(still.width),
+  ),
+].sort((a, b) => a - b);
 ---
 
 <figure class="film-detail relative m-0 w-full" data-film-detail data-id={film.id} data-active="false">
   <Image
     src={film.data.still}
     alt={`Still from ${film.data.title}`}
-    widths={[640, 960, 1280, 1856]}
-    sizes="(min-width: 1024px) 928px, 100vw"
+    widths={widths}
+    sizes="(min-width: 1486px) calc(100vw - 452px), (min-width: 1024px) calc(93vw - 348px), (min-width: 768px) calc(93vw - 292px), 100vw"
     loading="lazy"
-    class="aspect-[256/135] w-full bg-black/5 object-cover object-center max-md:aspect-video"
+    class="film-still bg-black/5 object-cover object-center max-md:aspect-video"
   />
   {hasCredits && (
     <div class="mt-5 max-md:mt-4">
-      <div class="flex justify-end px-[32px] max-md:justify-start">
+      <div class="flex justify-end px-[2rem] max-md:justify-start max-md:px-0">
         <button
           type="button"
           data-credits-toggle
           aria-expanded="false"
           aria-controls={`film-credits-${film.id}`}
-          class="text-[10px] font-medium uppercase tracking-[0.12em] text-ink/70 underline-offset-[3px] transition-colors duration-150 ease-out-strong hover:text-ink hover:underline focus-visible:text-ink focus-visible:underline focus-visible:outline-none"
+          class="text-[0.625rem] font-medium uppercase tracking-[0.12em] text-ink/70 underline-offset-[3px] transition-colors duration-150 ease-out-strong hover:text-ink hover:underline focus-visible:text-ink focus-visible:underline focus-visible:outline-none"
         >
           Credits
         </button>

@@ -13,7 +13,7 @@ interface Props {
 const { credits } = Astro.props;
 
 const LABEL_CLASS =
-  "text-[9px] font-medium uppercase leading-[13px] tracking-[0.09em] opacity-75";
+  "text-[0.5625rem] font-medium uppercase leading-[0.8125rem] tracking-[0.09em] opacity-75";
 
 const left = credits.left.trim();
 const right = credits.right.trim();
@@ -74,19 +74,19 @@ const columns = [
 ---
 
 {columns.length > 0 && (
-  <div class="grid grid-cols-5 px-[32px] text-[11px] leading-[13px] text-ink max-md:grid-cols-1 max-md:text-xs max-md:leading-[15px]">
-    <div class="col-span-3 col-start-3 grid grid-cols-2 gap-x-[24px] max-md:col-span-1 max-md:col-start-1 max-md:grid-cols-1 max-md:gap-y-5">
+  <div class="grid grid-cols-5 px-[2rem] text-[0.6875rem] leading-[0.8125rem] text-ink max-md:grid-cols-1 max-md:px-0 max-md:text-xs max-md:leading-[0.9375rem]">
+    <div class="col-span-4 col-start-2 grid grid-cols-2 gap-x-[3rem] max-md:col-span-1 max-md:col-start-1 max-md:grid-cols-1 max-md:gap-y-5">
       {columns.map((column) => (
         <div>
           {column.model.kind === "fields" && (
-            <dl class="grid grid-cols-[max-content_1fr] items-baseline gap-x-3.5">
+            <dl class="grid grid-cols-[minmax(5rem,max-content)_1fr] items-baseline gap-x-2">
               {column.model.rows.map((row) =>
                 row.kind === "break" ? (
                   <div aria-hidden="true" class="col-span-2 h-2.5" />
                 ) : (
                   <>
                     <dt class={LABEL_CLASS}>{row.label}</dt>
-                    <dd class="leading-[13px]">{row.value}</dd>
+                    <dd class="leading-[0.8125rem]">{row.value}</dd>
                   </>
                 ),
               )}
@@ -107,11 +107,11 @@ const columns = [
             </>
           )}
           {column.model.kind === "support" && (
-            <dl class="grid grid-cols-[max-content_1fr] items-baseline gap-x-3.5">
+            <dl class="grid grid-cols-[minmax(5rem,max-content)_1fr] items-baseline gap-x-2">
               {column.model.support.length > 0 && (
                 <>
                   <dt class={LABEL_CLASS}>Support</dt>
-                  <dd class="leading-[13px]">
+                  <dd class="leading-[0.8125rem]">
                     {column.model.support.map((line) => (
                       <div>{line}</div>
                     ))}
@@ -121,7 +121,7 @@ const columns = [
               {column.model.screenings.length > 0 && (
                 <>
                   <dt class={LABEL_CLASS}>Screenings</dt>
-                  <dd class="leading-[13px]">
+                  <dd class="leading-[0.8125rem]">
                     {column.model.screenings.map((line) => (
                       <div>{line}</div>
                     ))}

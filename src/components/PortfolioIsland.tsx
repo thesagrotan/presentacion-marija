@@ -16,6 +16,30 @@ export default function PortfolioIsland({
     let activeId: string | null = null;
     let readMore = false;
 
+    const mobile = window.matchMedia("(max-width: 767px)");
+    const detailStack = portfolio.querySelector<HTMLElement>(".detail-stack");
+
+    const placeDetails = (id: string | null): void => {
+      portfolio
+        .querySelectorAll<HTMLElement>("[data-film-detail]")
+        .forEach((detail) => {
+          const isActive = detail.dataset.id === id;
+          let home = detailStack;
+          if (mobile.matches && isActive) {
+            const wrapper = portfolio.querySelector<HTMLElement>(
+              `[data-film-wrapper][data-id="${detail.dataset.id}"]`,
+            );
+            home =
+              wrapper?.querySelector<HTMLElement>("[data-detail-slot]") ??
+              wrapper ??
+              detailStack;
+          }
+          if (home && detail.parentElement !== home) home.appendChild(detail);
+        });
+    };
+    let activeBg = HOME_BG;
+    let activeText = FILM_TEXT;
+
     const setTheme = (bg: string, text: string): void => {
       portfolio.style.setProperty("--film-bg", bg);
       portfolio.style.setProperty("--film-text", text);
@@ -58,7 +82,11 @@ export default function PortfolioIsland({
           resetCredits(detail);
         });
 
-      setTheme(bg, text);
+      activeBg = bg;
+      activeText = text;
+      setTheme(readMore ? HOME_BG : bg, readMore ? FILM_TEXT : text);
+
+      placeDetails(id);
 
       const stage = document.querySelector<HTMLElement>("[data-stage]");
       if (stage) stage.setAttribute("data-expanded", id ? "true" : "false");
@@ -85,6 +113,7 @@ export default function PortfolioIsland({
     const toggleReadMore = (): void => {
       readMore = !readMore;
       portfolio.setAttribute("data-readmore", readMore ? "true" : "false");
+      setTheme(readMore ? HOME_BG : activeBg, readMore ? FILM_TEXT : activeText);
       const toggle = portfolio.querySelector<HTMLElement>("#read-more-toggle");
       if (toggle) {
         toggle.setAttribute("aria-expanded", readMore ? "true" : "false");
@@ -114,7 +143,18 @@ export default function PortfolioIsland({
       }
     };
 
+    const onDevTheme = (event: Event): void => {
+      const detail = (event as CustomEvent).detail as
+        | { id?: string; bg?: string; text?: string }
+        | undefined;
+      if (!detail?.id || detail.id !== activeId) return;
+      activeBg = detail.bg ?? activeBg;
+      activeText = detail.text ?? activeText;
+      if (!readMore) setTheme(activeBg, activeText);
+    };
+
     portfolio.addEventListener("click", onClick);
+    window.addEventListener("dev:film-theme", onDevTheme);
 
     const bioHeader = portfolio.querySelector<HTMLElement>("[data-bio-header]");
     const measure = (): void => {
@@ -128,6 +168,9 @@ export default function PortfolioIsland({
     window.addEventListener("resize", measure);
     const resizeObserver = bioHeader ? new ResizeObserver(measure) : null;
     if (bioHeader) resizeObserver?.observe(bioHeader);
+
+    const onBreakpoint = (): void => placeDetails(activeId);
+    mobile.addEventListener("change", onBreakpoint);
 
     const viewport = portfolio.querySelector<HTMLElement>(".rm-viewport");
     const updateFade = (): void => {
@@ -150,7 +193,9 @@ export default function PortfolioIsland({
 
     return () => {
       portfolio.removeEventListener("click", onClick);
+      window.removeEventListener("dev:film-theme", onDevTheme);
       window.removeEventListener("resize", measure);
+      mobile.removeEventListener("change", onBreakpoint);
       resizeObserver?.disconnect();
       viewport?.removeEventListener("scroll", updateFade);
       viewportObserver?.disconnect();
@@ -163,7 +208,7 @@ export default function PortfolioIsland({
       class="relative min-h-dvh overflow-x-hidden text-ink max-md:flex max-md:flex-col max-md:p-[var(--pad)]"
       data-readmore="false"
       data-detail="false"
-      style="--film-bg:#FFFFFF;--film-text:#12140B"
+      style="--film-bg:#f1f1f1;--film-text:#12140B"
     >
       {children}
     </div>

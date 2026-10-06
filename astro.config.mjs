@@ -7,6 +7,9 @@ import preact from "@astrojs/preact";
 export default defineConfig({
   site: "https://marijaarakelyanlucic.com",
   integrations: [sitemap(), preact()],
+  devToolbar: {
+    enabled: false,
+  },
   vite: {
     plugins: [tailwindcss()],
   },

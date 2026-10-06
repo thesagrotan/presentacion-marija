@@ -1,9 +1,10 @@
 ---
 title: The Girl and the Sea
+meta: 7’, Germany, 2023
 order: 4
 still: ../../assets/stills/girl-and-the-sea.jpg
-bg: "#8FA2A6"
-text: "#0C1417"
+bg: "#5C666A"
+text: "#000000"
 credits:
   left: |
     Director: Marija Arakelyan Lučić

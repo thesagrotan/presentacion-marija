@@ -19,16 +19,24 @@ const { Content } = await render(film);
   <button type="button" data-film-item data-id={film.id} data-bg={film.data.bg} data-text={film.data.text}
     aria-expanded="false" aria-controls={`film-panel-${film.id}`}
     class="group/accordion-trigger flex w-full origin-left items-start justify-start rounded-none py-0 text-left font-normal transition-transform duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current active:scale-[0.97]">
-    <span class="font-serif text-[17.5px] leading-[1.25] font-normal group-hover/accordion-trigger:underline group-hover/accordion-trigger:underline-offset-[3px] max-[389px]:text-[15.5px]">
-      {film.data.title}
+    <span class="flex flex-col">
+      <span class="font-serif text-[1.09375rem] leading-[1.25] font-normal italic group-hover/accordion-trigger:underline group-hover/accordion-trigger:underline-offset-[3px] max-[389px]:text-[0.96875rem]">
+        {film.data.title}
+      </span>
+      {film.data.meta && (
+        <span class="font-serif text-sm leading-[1.25] font-normal max-[389px]:text-[0.78125rem]">
+          {film.data.meta}
+        </span>
+      )}
     </span>
   </button>
   <div id={`film-panel-${film.id}`} data-film-panel role="region" aria-label={`${film.data.title} description`} class="film-panel grid">
     <div class="min-h-0 overflow-hidden">
       <div class="pb-2.5">
-        <div class="mt-2 text-sm leading-[1.25] max-[389px]:text-[13px] [&_p]:m-0">
+        <div class="mt-2 text-sm leading-[1.25] max-[389px]:text-[0.8125rem] [&_p]:m-0">
           <Content />
         </div>
+        <div data-detail-slot></div>
         <hr class="film-rule mt-4 h-px w-full border-0 bg-current origin-left" aria-hidden="true" />
       </div>
     </div>

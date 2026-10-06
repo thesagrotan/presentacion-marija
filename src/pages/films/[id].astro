@@ -18,6 +18,15 @@ const description =
 const hasCredits = Boolean(
   film.data.credits.left.trim() || film.data.credits.right.trim(),
 );
+
+const still = film.data.still;
+const widths = [
+  ...new Set(
+    [640, 960, 1280, 1600, 1920, 2048]
+      .filter((w) => w <= still.width)
+      .concat(still.width),
+  ),
+].sort((a, b) => a - b);
 ---
 
 <Base title={`${film.data.title} — Marija Arakelyan Lučić`} description={description}>
@@ -27,7 +36,7 @@ const hasCredits = Boolean(
     class="min-h-dvh bg-[var(--film-bg)] text-[var(--film-text)]"
   >
     <div
-      class="mx-auto flex min-h-dvh w-full max-w-[1024px] flex-col p-[var(--pad)]"
+      class="mx-auto flex min-h-dvh w-full max-w-[64rem] flex-col p-[var(--pad)]"
     >
       <header class="flex items-center">
         <a
@@ -39,20 +48,27 @@ const hasCredits = Boolean(
       </header>
 
       <article class="flex flex-1 flex-col gap-8 pt-10">
-        <h1 class="max-w-[680px] font-serif text-[17.5px] leading-[1.25]">
-          {film.data.title}
-        </h1>
+        <div class="flex max-w-[42.5rem] flex-col gap-1">
+          <h1 class="font-serif text-[1.09375rem] leading-[1.25] italic">
+            {film.data.title}
+          </h1>
+          {film.data.meta && (
+            <p class="font-serif text-sm leading-[1.25]">
+              {film.data.meta}
+            </p>
+          )}
+        </div>
 
         <Image
           src={film.data.still}
           alt={`Still from ${film.data.title}`}
-          widths={[640, 960, 1280, 1856]}
-          sizes="(min-width: 1024px) 928px, 100vw"
+          widths={widths}
+          sizes="(min-width: 1024px) 928px, (min-width: 768px) calc(100vw - 64px), calc(100vw - 48px)"
           loading="eager"
           class="aspect-[256/135] w-full bg-black/5 object-cover object-center max-md:aspect-video"
         />
 
-        <div class="max-w-[680px] text-sm leading-[1.45]">
+        <div class="max-w-[42.5rem] text-sm leading-[1.45]">
           <Content />
         </div>
       </article>

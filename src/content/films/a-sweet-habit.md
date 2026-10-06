@@ -1,9 +1,10 @@
 ---
 title: A Sweet Habit
+meta: 7’, Germany, 2025
 order: 3
 still: ../../assets/stills/a-sweet-habit.jpg
-bg: "#B08C86"
-text: "#1A0E0C"
+bg: "#5F4C35"
+text: "#000000"
 credits:
   left: |
     Director: Marija Arakelyan Lucic
