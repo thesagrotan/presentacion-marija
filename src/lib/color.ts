@@ -173,9 +173,11 @@ export function apcaLevel(
   lc: number,
   fontSizePx = 14,
   fontWeight = 400,
+  minOverride?: number,
 ): ContrastLevel {
   const value = Math.abs(lc);
-  if (value < apcaMinLc(fontSizePx, fontWeight)) return "fail";
+  const min = minOverride ?? apcaMinLc(fontSizePx, fontWeight);
+  if (value < min) return "fail";
   if (value >= 90) return "preferred";
   if (value >= 75) return "body";
   if (value >= 60) return "large";

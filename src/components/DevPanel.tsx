@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState } from "preact/hooks";
+import { useEffect, useMemo, useRef, useState } from "preact/hooks";
 import type { ContrastLevel, HSL } from "@/lib/color";
+import { nearestPantones } from "@/lib/pantone";
 import {
   apcaContrast,
   apcaLevel,
-  apcaMinLc,
   formatHsl,
   hexToHsl,
   hslToHex,
@@ -309,10 +309,12 @@ const contrastTones: Record<ContrastLevel, { label: string; text: string; bar: s
 };
 
 function ContrastCheck({ text, bg }: { text: string; bg: string }) {
-  const fontSize = 14;
+  const fontSize = 16;
   const lc = Math.abs(apcaContrast(text, bg));
-  const minLc = apcaMinLc(fontSize);
-  const tone = contrastTones[apcaLevel(lc, fontSize)];
+  // Relaxed floor set to Lc 60 (APCA's large-text tier, ≈WCAG 3:1) rather than
+  // the APCA LUT's Lc 90 or the WCAG AA body floor of Lc 75.
+  const minLc = 60;
+  const tone = contrastTones[apcaLevel(lc, fontSize, 400, minLc)];
   const ratio = wcagContrast(text, bg);
   const meter = Number.isFinite(minLc)
     ? Math.min(100, (lc / minLc) * 100)
@@ -364,8 +366,51 @@ export default function DevPanel({ films }: { films: DevFilm[] }) {
     null,
   );
   const [copied, setCopied] = useState<"yaml" | "prompt" | null>(null);
+  const [hoverTcx, setHoverTcx] = useState<string | null>(null);
+  const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
   const editRef = useRef<Edit | null>(null);
   editRef.current = edit;
+
+  const dragRef = useRef<{
+    px: number;
+    py: number;
+    ox: number;
+    oy: number;
+  } | null>(null);
+
+  const onDragStart = (event: PointerEvent): void => {
+    const target = event.target as HTMLElement;
+    if (target.closest("button")) return;
+    const el = event.currentTarget as HTMLElement;
+    const rect = el.parentElement?.getBoundingClientRect();
+    if (!rect) return;
+    dragRef.current = {
+      px: event.clientX,
+      py: event.clientY,
+      ox: rect.left,
+      oy: rect.top,
+    };
+    el.setPointerCapture(event.pointerId);
+  };
+
+  const onDragMove = (event: PointerEvent): void => {
+    const drag = dragRef.current;
+    if (!drag) return;
+    const x = Math.min(
+      Math.max(8, drag.ox + event.clientX - drag.px),
+      window.innerWidth - 272,
+    );
+    const y = Math.min(
+      Math.max(8, drag.oy + event.clientY - drag.py),
+      Math.max(8, window.innerHeight - 80),
+    );
+    setPos({ x, y });
+  };
+
+  const onDragEnd = (event: PointerEvent): void => {
+    dragRef.current = null;
+    (event.currentTarget as HTMLElement).releasePointerCapture?.(event.pointerId);
+  };
 
   useEffect(() => {
     for (const film of films) {
@@ -418,6 +463,7 @@ export default function DevPanel({ films }: { films: DevFilm[] }) {
     if (!edit) {
       setSampling(false);
       setSample(null);
+      setPos(null);
     }
   }, [edit]);
 
@@ -458,6 +504,13 @@ export default function DevPanel({ films }: { films: DevFilm[] }) {
       return;
     }
     setEdit({ id: target.id, kind: target.kind, x: event.clientX, y: event.clientY });
+    setPos({
+      x: Math.min(Math.max(8, event.clientX - 132), window.innerWidth - 272),
+      y: Math.min(
+        Math.max(8, event.clientY + 14),
+        Math.max(8, window.innerHeight - 540),
+      ),
+    });
   };
 
   const setColor = (id: string, key: Kind, value: HSL): void => {
@@ -510,6 +563,14 @@ export default function DevPanel({ films }: { films: DevFilm[] }) {
       : (films.find((film) => film.id === id)?.title ?? id);
 
   const editTitle = edit ? titleFor(edit.id) : "";
+
+  const activeHex = edit ? hslToHex(colors[edit.id][edit.kind]) : null;
+  const suggestions = useMemo(
+    () => (activeHex ? nearestPantones(activeHex, 40) : []),
+    [activeHex],
+  );
+  const activePantone =
+    suggestions.find((pantone) => pantone.tcx === hoverTcx) ?? suggestions[0];
 
   return (
     <>
@@ -565,11 +626,17 @@ export default function DevPanel({ films }: { films: DevFilm[] }) {
           data-dev-ui
           class="fixed z-[110] w-[264px] rounded-xl border border-white/10 bg-neutral-900/95 p-3 text-neutral-100 shadow-2xl backdrop-blur"
           style={{
-            left: `${Math.min(Math.max(8, edit.x - 132), window.innerWidth - 272)}px`,
-            top: `${Math.min(Math.max(8, edit.y + 14), Math.max(8, window.innerHeight - 320))}px`,
+            left: `${pos ? pos.x : Math.min(Math.max(8, edit.x - 132), window.innerWidth - 272)}px`,
+            top: `${pos ? pos.y : Math.min(Math.max(8, edit.y + 14), Math.max(8, window.innerHeight - 540))}px`,
           }}
         >
-          <div class="flex items-center gap-2">
+          <div
+            class="-m-1 mb-1 flex cursor-grab touch-none items-center gap-2 rounded-lg p-1 select-none active:cursor-grabbing"
+            onPointerDown={onDragStart}
+            onPointerMove={onDragMove}
+            onPointerUp={onDragEnd}
+            onPointerCancel={onDragEnd}
+          >
             <span
               class="h-4 w-4 shrink-0 rounded-[4px] border border-white/25"
               style={{ background: hslToHex(colors[edit.id][edit.kind]) }}
@@ -642,6 +709,47 @@ export default function DevPanel({ films }: { films: DevFilm[] }) {
             <span>{formatHsl(colors[edit.id][edit.kind])}</span>
             <span>{hslToHex(colors[edit.id][edit.kind])}</span>
           </div>
+          {suggestions.length > 0 && (
+            <div class="mt-3 border-t border-white/10 pt-2.5">
+              <div class="flex items-baseline justify-between gap-2">
+                <span class="text-[9px] font-medium tracking-[0.12em] text-neutral-400 uppercase">
+                  Pantone
+                </span>
+                <span class="min-w-0 truncate font-mono text-[10px] text-neutral-500">
+                  {activePantone
+                    ? `${activePantone.name} · ${activePantone.tcx}`
+                    : ""}
+                </span>
+              </div>
+              <div class="mt-1.5 grid grid-cols-8 gap-1">
+                {suggestions.map((pantone) => {
+                  const selected =
+                    activeHex?.toUpperCase() === pantone.hex.toUpperCase();
+                  return (
+                    <button
+                      key={pantone.tcx}
+                      type="button"
+                      title={`${pantone.name} · ${pantone.tcx} · ΔE ${pantone.distance.toFixed(1)}`}
+                      aria-label={`${pantone.name} ${pantone.tcx}`}
+                      onMouseEnter={() => setHoverTcx(pantone.tcx)}
+                      onMouseLeave={() => setHoverTcx(null)}
+                      onFocus={() => setHoverTcx(pantone.tcx)}
+                      onBlur={() => setHoverTcx(null)}
+                      onClick={() =>
+                        edit && setColor(edit.id, edit.kind, hexToHsl(pantone.hex))
+                      }
+                      class={`h-5 flex-1 rounded-sm border transition ${
+                        selected
+                          ? "border-white ring-2 ring-white/60"
+                          : "border-white/15 hover:border-white/60"
+                      }`}
+                      style={{ background: pantone.hex }}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
